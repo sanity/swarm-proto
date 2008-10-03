@@ -1,0 +1,10 @@
+0: Push(5)
+1: Push(6)
+2: AddOp			[0,1]
+3: SetVar(0)		[2]
+4: GetVar(0)		[3,7]
+5: Push(1)
+6: AddOp			[4,5]
+7: SetVar(0)		[6]
+8: Goto 4:
+
