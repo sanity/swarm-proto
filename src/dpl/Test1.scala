@@ -5,22 +5,25 @@ import scala.actors.Actor._
 
 object Test1 {
   def main(args : Array[String]) : Unit = {
-    val program : IntMap[Instruction] = IntMap(
-      0 -> PushValue(0),
-      1 -> PopToLocalVar(0), // LocalVar(0) is our counter
-      2 -> PushValue("v1"),
-      3 -> Create(),
-      4 -> Write("f1"),
-      5 -> PushFromLocalVar(0),
-      6 -> PushValue(1),
-      7 -> AddOp,
-      8 -> PopToLocalVar(0),
-      9 -> PushFromLocalVar(0),
-      10 -> PushValue(20),
-      11 -> NotEqualsCond,
-      12 -> If(2)
+    val program : List[ProgramLine] = List(
+      PushValue(0),
+      PopToLocalVar(0), // LocalVar(0) is our counter
+      LL("loop"),
+      PushValue("v1"),
+      Create(),
+      Write("f1"),
+      PushFromLocalVar(0),
+      PushValue(1),
+      AddOp,
+      PopToLocalVar(0),
+      PushFromLocalVar(0),
+      PushValue(20),
+      NotEqualsCond,
+      If(LL("loop"))
     )
-    val cluster = new Cluster(5, program)
+    val compiled = Interpreter.compile(program)
+    println(compiled)
+    val cluster = new Cluster(5, 10, compiled)
     for (n <- cluster.nodes) {
       n.start
     }

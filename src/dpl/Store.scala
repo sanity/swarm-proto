@@ -3,8 +3,6 @@ import scala.collection.mutable._
 import Util._
 
 class Store(maxSize : Int) {
-  def this() = this(10)
-  
   val map : Map[Int, Map[String,Any]] = new HashMap()
     
   def apply(objectPtr : Int, f : String) : Any = {

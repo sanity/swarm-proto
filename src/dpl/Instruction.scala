@@ -4,7 +4,7 @@ import scala.List
 import scala.collection.immutable.EmptySet
 import scala.collection.immutable.Set1
 
-abstract class Instruction {
+abstract class Instruction extends ProgramLine {
   
   def execute(node : Node, stack : Stack, localVars : LocalVars, pc : Int) : (Stack, LocalVars, Int)
   
@@ -83,19 +83,19 @@ case class PushFromLocalVar(varPos : Int) extends Instruction {
    val depends = (0, 1, new Set1[Int](varPos), new EmptySet[Int])
 }
 
-case class Goto(moveTo : Int) extends Instruction {
+case class Goto(moveTo : LineLabel) extends Instruction {
    def execute(node : Node, stack : Stack, localVars : LocalVars, pc : Int) : (Stack, LocalVars, Int) = {
-      (stack, localVars, moveTo)
+      (stack, localVars, moveTo.lineNo)
   }
   
   val depends = (0, 0, new EmptySet[Int], new EmptySet[Int])
 }
 
-case class If(moveTo : Int) extends Instruction {
+case class If(moveTo : LineLabel) extends Instruction {
    def execute(node : Node, stack : Stack, localVars : LocalVars, pc : Int) : (Stack, LocalVars, Int) = {
      var (v, ns) = stack.pop
       v match {
-        case true => (ns, localVars, moveTo)
+        case true => (ns, localVars, moveTo.lineNo)
         case false => (ns, localVars, pc + 1)
         case _ => throw new RuntimeException
       }

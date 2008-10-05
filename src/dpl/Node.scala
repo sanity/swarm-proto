@@ -3,10 +3,10 @@ import scala.collection.immutable.IntMap
 import scala.actors.Actor
 import scala.actors.Actor._
 
-class Node(c : Cluster, program : IntMap[Instruction]) extends Actor {
+class Node(c : Cluster, storeSize : Int, program : IntMap[Instruction]) extends Actor {
   val id = Node.newId
   val interpreter : Interpreter = new Interpreter(this)
-  val store : Store = new Store
+  val store : Store = new Store(storeSize)
   val cluster = c
   def act() = {
     loop {
@@ -18,7 +18,8 @@ class Node(c : Cluster, program : IntMap[Instruction]) extends Actor {
             interpreter.interpret(program, state)
           } catch {
             case RemoteReferenceException(remoteNode, continuation) => {
-              println("Moving to "+remoteNode)
+              Stats.moves += 1
+//              println("Moving to "+remoteNode)
               remoteNode ! continuation
             }
           }
@@ -41,5 +42,15 @@ object Node {
     val id = nextId;
     nextId += 1;
     id
+  }
+}
+
+object Stats {
+  var instructionsExecuted = 0
+  var moves = 0
+  
+  def clear = {
+    instructionsExecuted = 0
+    moves = 0
   }
 }

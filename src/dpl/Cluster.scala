@@ -3,12 +3,12 @@ package dpl
 import scala.collection.mutable._
 import scala.collection.immutable._
 
-class Cluster(numNodes : Int, program : IntMap[Instruction]) {
-  val maxImbalance = 4
+class Cluster(numNodes : Int, storeSize : Int, program : IntMap[Instruction]) {
+  val maxImbalance = 0.5
   val nodes = new Array[Node](numNodes)
   
   for (i <- 1 to numNodes) {
-    nodes(i-1) = new Node(this, program)
+    nodes(i-1) = new Node(this, storeSize, program)
   }
   
   def loadBalance(thisNode : Node) : Option[Node] = {
@@ -16,7 +16,6 @@ class Cluster(numNodes : Int, program : IntMap[Instruction]) {
     var smallestSz = Integer.MAX_VALUE
     for (n <- nodes) {
       val nSz = n.store.size
-      println(""+n+" : "+nSz)
       if (nSz < smallestSz) {
         smallest = n
         smallestSz = nSz
@@ -25,9 +24,7 @@ class Cluster(numNodes : Int, program : IntMap[Instruction]) {
     
     val thisSz = thisNode.store.size
     
-    val imbalance = thisSz - smallestSz
-    
-    if (imbalance > maxImbalance) {
+    if ((thisSz - smallestSz) > (storeSize * maxImbalance)) {
       return Some(smallest)
     } else {
       return None
