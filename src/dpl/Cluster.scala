@@ -4,7 +4,7 @@ import scala.collection.mutable._
 import scala.collection.immutable._
 
 class Cluster(numNodes : Int, storeSize : Int, program : IntMap[Instruction]) {
-  val maxImbalance = 0.5
+  val maxImbalance = 0.8
   val nodes = new Array[Node](numNodes)
   
   for (i <- 1 to numNodes) {
@@ -22,10 +22,17 @@ class Cluster(numNodes : Int, storeSize : Int, program : IntMap[Instruction]) {
       }
     }
     
+    if (smallestSz >= storeSize) {
+          throw new RuntimeException("Out of space")
+    }
+    
     val thisSz = thisNode.store.size
     
     if ((thisSz - smallestSz) > (storeSize * maxImbalance)) {
-      return Some(smallest)
+//    if ((thisSz >= storeSize) || (storeSize-thisSz < 2)) {
+//     if (thisSz >= storeSize) {
+//        println("Switching to "+smallest.id+" from "+thisNode.id+" thisSz="+thisSz+" smallestSz="+smallestSz+" storeSize="+storeSize)
+        return Some(smallest)
     } else {
       return None
     }

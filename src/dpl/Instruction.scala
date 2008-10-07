@@ -123,6 +123,15 @@ case class Create() extends Instruction {
     val depends = (0, 1, new EmptySet[Int], new EmptySet[Int])
 }
 
+case class Drop() extends Instruction {
+    def execute(node : Node, stack : Stack, localVars : LocalVars, pc : Int) : (Stack, LocalVars, Int) = {
+      var (_, ns) = stack.pop
+      (ns, localVars, pc+1)
+  }
+  
+  val depends = (1, 0, new EmptySet[Int], new EmptySet[Int])
+}
+
 case class Nop() extends Instruction {
     def execute(node : Node, stack : Stack, localVars : LocalVars, pc : Int) : (Stack, LocalVars, Int) = {
       (stack, localVars, pc+1)

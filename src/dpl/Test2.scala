@@ -11,11 +11,12 @@ import scala.collection.immutable._
  */
 
 object Test2 {
-  val numNodes = 10
-  val nodeSize = 10
+  val numNodes = 5
+  val nodeSize = 50
   
   def main(args : Array[String]) : Unit = {
-    for (numObs <- 1 to 100) {
+    val numObs = 200
+    // for (numObs <- 1 to 100)     {
 	    val program : List[ProgramLine] = List(
 	      // Create a root object, add a "val" field and put 50 in it
 	      Create(),
@@ -77,6 +78,9 @@ object Test2 {
 	      PushFromLocalVar(1),
 	      PushFromLocalVar(3),
 	      Write("left"),
+          PushFromLocalVar(1), // [*] This is a bit of a cheat, we
+          Read("val"),         // move the continuation back
+          Drop(),              // to the new node
 	      Goto(LL("OUTERLOOP")), // Change to OUTER_LOOP LABEL
 	      LL("GREATERTHAN"),
        PushFromLocalVar(3), // We are going right
@@ -92,6 +96,9 @@ object Test2 {
 	      PushFromLocalVar(1),
 	      PushFromLocalVar(3),
 	      Write("right"),
+          PushFromLocalVar(1),  // Same cheat again (see [*]
+          Read("val"),
+          Drop(),
 	      Goto(LL("OUTERLOOP")), // Change to OUTER_LOOP LABEL
           LL("END")
 	    )
@@ -105,10 +112,40 @@ object Test2 {
 	    cluster.nodes(0) ! ()
 	    
 	    Thread.sleep(500)
-	    
+	    /*
 	   // println(""+numObs+", "+Stats.instructionsExecuted+", "+Stats.moves)
      println(""+numObs+", "+((Stats.moves:Float) / Stats.instructionsExecuted))
-    }
+     */
+     
+//    }
 
+     val nodeColorMap = Map(0 -> "pink", 1 -> "green", 2 -> "lightblue", 
+         3 -> "yellow", 4 -> "orange")
+     
+     var nodeCount = 0
+     // Dump to .dot format
+     for {node <- cluster.nodes
+          (objid, objmap) <- node.store.map} {
+         println("o"+objid+" [label=\""+objmap("val")+"\", style=filled, color="+nodeColorMap(node.id)+"]")
+         nodeCount += 1
+     }
+     
+ //    println("Nodecount: "+nodeCount)
+     
+     for {node <- cluster.nodes
+          (objid, objmap) <- node.store.map} {
+       val Some(left) = objmap.get("left")
+       val Some(right) = objmap.get("right")
+       if (left.isInstanceOf[ObjectRef]) {
+         println("o"+objid+" -> o"+left.asInstanceOf[ObjectRef].ref+";")
+       }
+       if (right.isInstanceOf[ObjectRef]) {
+         println("o"+objid+" -> o"+right.asInstanceOf[ObjectRef].ref+";")
+       }
+       
   }
+  
+	
+
 }
+}	
