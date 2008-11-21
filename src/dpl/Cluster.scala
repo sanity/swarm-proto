@@ -29,9 +29,6 @@ class Cluster(numNodes : Int, storeSize : Int, program : IntMap[Instruction]) {
     val thisSz = thisNode.store.size
     
     if ((thisSz - smallestSz) > (storeSize * maxImbalance)) {
-//    if ((thisSz >= storeSize) || (storeSize-thisSz < 2)) {
-//     if (thisSz >= storeSize) {
-//        println("Switching to "+smallest.id+" from "+thisNode.id+" thisSz="+thisSz+" smallestSz="+smallestSz+" storeSize="+storeSize)
         return Some(smallest)
     } else {
       return None
